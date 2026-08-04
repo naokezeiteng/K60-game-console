@@ -251,48 +251,50 @@ uint16 Game(unsigned char mine[rows][cols],unsigned char show[rows][cols])
 }
 
 void kongzhi(void)
-  {  
-result1 = LPLD_ADC_Get(ADC0, DAD1);//获得数字量
-result = LPLD_ADC_Get(ADC0, DAD3);
-if(result<1800&&t==0){
-
-   key_up=1;  
-    key_left=0;
-  key_right=0; 
+  {
+/* 修正ADC通道映射，与全局key()函数保持一致:
+   DAD1→result(左右), DAD3→result1(上下)
+   统一阈值为1000/3000，与key()一致 */
+result = LPLD_ADC_Get(ADC0, DAD1);   // 左右
+result1 = LPLD_ADC_Get(ADC0, DAD3);  // 上下
+if(result<1000&&t==0){
+   key_up=0;
+    key_left=1;
+  key_right=0;
   key_down=0;
  t++;
-           //up
+           //left
 }
-else if(result>2200&&t==0){
-     key_up=0;  
+else if(result>3000&&t==0){
+     key_up=0;
     key_left=0;
-  key_right=0; 
-  key_down=1;
-    t++;         //down
+  key_right=1;
+  key_down=0;
+    t++;         //right
 }
 
-if(result1<1800&&t==0){
-      key_up=0;  
-    key_left=1;
-  key_right=0; 
-  key_down=0;
-     t++;     //left
-}
-else if(result1>2200&&t==0){
-      key_up=0;  
+if(result1<1000&&t==0){
+      key_up=1;
     key_left=0;
-  key_right=1; 
-  key_down=0;            //right
+  key_right=0;
+  key_down=0;
+     t++;     //up
+}
+else if(result1>3000&&t==0){
+      key_up=0;
+    key_left=0;
+  key_right=0;
+  key_down=1;            //down
   t++;
 }
-if(result>=1800&&result<=2200&&result1>=1800&&result1<=2200)
+if(result>=1000&&result<=3000&&result1>=1000&&result1<=3000)
 {
  t=0;
  ti=0;
-   key_up=0;  
+   key_up=0;
    key_left=0;
-  key_right=0; 
-  key_down=0; 
+  key_right=0;
+  key_down=0;
 }
   delay1(100);
 }
