@@ -6,8 +6,8 @@
 //data:要写入的数据
 //返回值:读到的数据
 uint8 VS_SPI_ReadWriteByte(uint8 data)
-{			  	 
-	//return LPLD_SPI_Master_Write(SPI0,data,SPI_PCS0,SPI_PCS_ASSERTED);	  
+{
+	return LPLD_SPI_Master_Write(SPI0,data,SPI_PCS0,SPI_PCS_ASSERTED);
 }
   
 ////////////////////////////////////////////////////////////////////////////////	 	 
