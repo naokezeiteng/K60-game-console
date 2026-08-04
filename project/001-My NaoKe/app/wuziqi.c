@@ -47,25 +47,25 @@ void key_scan(void)
 
     if(LPLD_ADC_Get(ADC0, DAD1)>3000)
     {
-      delay(8000);
+      delay(200);  /* 消抖延迟，从8000减至200 */
       if(LPLD_ADC_Get(ADC0, DAD1)>3000)codn_x+=8;
       if(codn_x > 56) codn_x = 0;
     }
     else if(LPLD_ADC_Get(ADC0, DAD1) < 1000)
     {
-      delay(8000);
+      delay(200);  /* 消抖延迟，从8000减至200 */
       if(LPLD_ADC_Get(ADC0, DAD1)< 1000)codn_x-=8;
       if(codn_x < 0) codn_x = 56;
     }
     if(LPLD_ADC_Get(ADC0, DAD3)>3000)
     {
-      delay(8000);
+      delay(200);  /* 消抖延迟，从8000减至200 */
       if(LPLD_ADC_Get(ADC0, DAD3)>3000)codn_y++;
       if(codn_y > 7) codn_y = 0;
     }
     else if(LPLD_ADC_Get(ADC0, DAD3) < 1000)
     {
-      delay(8000);
+      delay(200);  /* 消抖延迟，从8000减至200 */
       if(LPLD_ADC_Get(ADC0, DAD3)< 1000)codn_y--;
       if(codn_y < 0) codn_y = 7;
     }
