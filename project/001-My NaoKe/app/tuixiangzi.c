@@ -324,6 +324,11 @@ void show_map(void){
   }
 }
 
+/* 增量更新单个格子 */
+void update(uint16 x, uint16 y){
+  LCD_P16x8Ch(x*8, y, map[x][y]);
+}
+
 uint16 judge(uint16 x,uint16 y,uint16 id){ //id 表示方向数组的行标，0,1,2,3 分别表示上下左右
   uint16 xx,yy,xxx,yyy;
   xx=x+dir[id][0]; yy=y+dir[id][1];
@@ -341,26 +346,24 @@ void fun(uint16 key,uint16 dirction){
   if(key==1){//直接移动
     if(mat[cur_y][cur_x]==4)map[cur_x][cur_y]=4;
     else map[cur_x][cur_y]=0;
-    //update(cur_x,cur_y);
+    update(cur_x,cur_y);
 
     cur_x+=dir[dirction][0]; cur_y+=dir[dirction][1];
     map[cur_x][cur_y]=2;
-    //update(cur_x,cur_y);
-    show_map();
+    update(cur_x,cur_y);
 
   }
   else if(key==2){//间接移动
     if(mat[cur_y][cur_x]==4)map[cur_x][cur_y]=4;
     else map[cur_x][cur_y]=0;
-    //update(cur_x,cur_y);
+    update(cur_x,cur_y);
 
     cur_x+=dir[dirction][0]; cur_y+=dir[dirction][1];
     map[cur_x][cur_y]=2;
-    //update(cur_x,cur_y);
+    update(cur_x,cur_y);
 
     x=cur_x+dir[dirction][0]; y=cur_y+dir[dirction][1];
     map[x][y]=3;
-    show_map();
-    //update(x,y);
+    update(x,y);
   }
 }
