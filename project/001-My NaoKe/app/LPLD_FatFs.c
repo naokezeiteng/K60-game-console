@@ -6,29 +6,35 @@
 #include "saolei.h"
 #include "wuziqi.h"
 #include "huatu.h"
-//#include "wavplay.h"  Èí½âÊ§°Ü
-void start_pic(void);//¿ªÊ¼½çÃæ
+//#include "wavplay.h"  è½¯è§£å¤±è´¥
+void start_pic(void);//å¼€å§‹ç•Œé¢
 void readsd(void);
 void die(FRESULT rc);
-DWORD get_fattime (void);// ÓÃ»§×Ô¶¨ÒåµÄÎªFatFsÏµÍ³Ìá¹©ÊµÊ±Ê±¼äµÄº¯Êı
-void badapple(uint8 spshu);//ÊÓÆµ²¥·Å
-//void music(void);//ÒôÀÖ²¥·Å
-void huatu(void);//×Ô¶¨ÒåµØÍ¼¹¦ÄÜ
-void flash_start(void);//ÊÓÆµ²¥·ÅÑ¡Ôñ½çÃæ
-// ÒÔÏÂ±äÁ¿¶¨Òå¾ù²ÉÓÃFatFsÎÄ¼şÏµÍ³±äÁ¿ÀàĞÍ
-FRESULT rc;     //½á¹û´úÂë
-FATFS fatfs,*fs;      // ÎÄ¼şÏµÍ³¶ÔÏó
-FIL fil;      // ÎÄ¼ş¶ÔÏó
+DWORD get_fattime (void);// ç”¨æˆ·è‡ªå®šä¹‰çš„ä¸ºFatFsç³»ç»Ÿæä¾›å®æ—¶æ—¶é—´çš„å‡½æ•°
+void badapple(uint8 spshu);//è§†é¢‘æ’­æ”¾
+//void music(void);//éŸ³ä¹æ’­æ”¾
+void huatu(void);//è‡ªå®šä¹‰åœ°å›¾åŠŸèƒ½
+void flash_start(void);//è§†é¢‘æ’­æ”¾é€‰æ‹©ç•Œé¢
+// ä»¥ä¸‹å˜é‡å®šä¹‰å‡é‡‡ç”¨FatFsæ–‡ä»¶ç³»ç»Ÿå˜é‡ç±»å‹
+FRESULT rc;     //ç»“æœä»£ç 
+FATFS fatfs,*fs;      // æ–‡ä»¶ç³»ç»Ÿå¯¹è±¡
+FIL fil;      // æ–‡ä»¶å¯¹è±¡
 UINT bw, br;
-unsigned char buff_86[688],buff_114[912];//86*64·Ö±æÂÊ|114*64·Ö±æÂÊ
-//Í¨ÓÃ±êÖ¾Î»
-uint16 result,result1;//´¢´æADCÄ£¿éµÄ²É¼¯Êı¾İ
+/* ä¸¤ç§åˆ†è¾¨ç‡ä¸ä¼šåŒæ—¶ä½¿ç”¨ï¼Œç”¨unionèŠ‚çœ688å­—èŠ‚RAM */
+union {
+  unsigned char b86[688];
+  unsigned char b114[912];
+} videobuf;
+#define buff_86  videobuf.b86
+#define buff_114 videobuf.b114
+//é€šç”¨æ ‡å¿—ä½
+uint16 result,result1;//å‚¨å­˜ADCæ¨¡å—çš„é‡‡é›†æ•°æ®
 uint16 key_up,key_down,key_left,key_right;//
 uint16 mosixuanzi=1;
 uint16 gamestart=0,gameing=0;
 uint8 badapple_time=1;
-//ÉµµõÍô½´±êÖ¾Î»
-uint16 flag=1;//·µ»Ø
+//å‚»åŠæ±ªé…±æ ‡å¿—ä½
+uint16 flag=1;//è¿”å›
 uint16 flag1=0,flag2=0;
 uint16 time=60;
 uint16 timeflag=0;
@@ -36,12 +42,12 @@ uint16 gameover=0;
 uint8 wj_wzq=0;
 
 void main (void){
-  init_gpio();//³õÊ¼»¯gpio¿Ú
-  LCD_Init();//³õÊ¼»¯OLED
-  adc_init();//³õÊ¼»¯ADC
+  init_gpio();//åˆå§‹åŒ–gpioå£
+  LCD_Init();//åˆå§‹åŒ–OLED
+  adc_init();//åˆå§‹åŒ–ADC
   pit_init();
-  pwm_init();//³õÊ¼»¯PWM
-  //dac_init();//³õÊ¼»¯DACÄ£¿é
+  pwm_init();//åˆå§‹åŒ–PWM
+  //dac_init();//åˆå§‹åŒ–DACæ¨¡å—
   start_pic();
   //gameing=1;mosixuanzi=6;gamestart=1;
   //huatu();
@@ -64,15 +70,15 @@ void start_pic(void){
   uint16 pic=1;
   LCD_CLS();
   //LCD_P128x64Ch();
-  for(uint8 i=0;i<6;i++)//Í¼ĞÎ½»»¥ÏµÍ³
+  for(uint8 i=0;i<6;i++)//å›¾å½¢äº¤äº’ç³»ç»Ÿ
     LCD_P14x16Ch(i*16+10,0,i+66);
 
-  for(uint8 i=0;i<4;i++)//Ö¸µ¼ÀÏÊ¦
+  for(uint8 i=0;i<4;i++)//æŒ‡å¯¼è€å¸ˆ
     LCD_P14x16Ch(i*15,4,i+66+6);
   for(uint8 i=0;i<2;i++)//11
     LCD_P14x16Ch(i*22+15*4+14,4,i+66+10);
 
-  for(uint8 i=0;i<3;i++)//»ã±¨ÈË
+  for(uint8 i=0;i<3;i++)//æ±‡æŠ¥äºº
     LCD_P14x16Ch(i*18,6,i+66+12);
   for(uint8 i=0;i<3;i++)//111
     LCD_P14x16Ch(i*15+15*4+14,6,i+66+15);
@@ -100,19 +106,19 @@ while(1){
 
 void die(FRESULT rc)
 {
-  //printf("´íÎó´úÂë rc=%u.\n", rc);
+  //printf("é”™è¯¯ä»£ç  rc=%u.\n", rc);
   LCD_P8x16Str(30,2,"SD Error!");
   LCD_P8x16Str(30,4,"Check it");
   rc = f_close(&fil);
   f_mount(0,NULL);
   while(1);
 }
-// ÓÃ»§×Ô¶¨ÒåµÄÎªFatFsÏµÍ³Ìá¹©ÊµÊ±Ê±¼äµÄº¯Êı
+// ç”¨æˆ·è‡ªå®šä¹‰çš„ä¸ºFatFsç³»ç»Ÿæä¾›å®æ—¶æ—¶é—´çš„å‡½æ•°
 DWORD get_fattime (void)
 {
-  return ((DWORD)(2018 - 1980) << 25) //2018Äê
-       | ((DWORD)12 << 21)               //12ÔÂ
-       | ((DWORD)12 << 16)              //12ÈÕ
+  return ((DWORD)(2018 - 1980) << 25) //2018å¹´
+       | ((DWORD)12 << 21)               //12æœˆ
+       | ((DWORD)12 << 16)              //12æ—¥
        | ((DWORD)0 << 11)
        | ((DWORD)0 << 5)
        | ((DWORD)0 >> 1);
@@ -122,9 +128,9 @@ void readsd(void)
 {
   DWORD fre_clust,fre_sect,tot_sect;
   unsigned char s[]="00000";
-  // ×¢²áÒ»¸ö´ÅÅÌ¹¤×÷Çø
+  // æ³¨å†Œä¸€ä¸ªç£ç›˜å·¥ä½œåŒº
    f_mount(0,&fatfs);
-   //printf("\n¶ÁÈ¡ÈİÁ¿.\n");
+   //printf("\nè¯»å–å®¹é‡.\n");
    rc = f_getfree("0:", &fre_clust, &fs);
    if (rc) die(rc);
    /* Get total sectors and free sectors */
@@ -160,11 +166,11 @@ void readsd(void)
 
 void badapple(uint8 spshu){
   uint16 i;
-  // ×¢²áÒ»¸ö´ÅÅÌ¹¤×÷Çø
+  // æ³¨å†Œä¸€ä¸ªç£ç›˜å·¥ä½œåŒº
   //printf("1\n");
   rc=f_mount(0,&fatfs);
   if (rc) die(rc);
-  //´ò¿ªµÄÎÄ¼ş
+  //æ‰“å¼€çš„æ–‡ä»¶
   //printf("2\n");
   switch(spshu){
     case 1:rc=f_open(&fil, "0:/cartoon/badapple.bin", FA_READ);
@@ -175,19 +181,19 @@ void badapple(uint8 spshu){
           break;
   }
   //printf("3\n");
-  //´òÓ¡³öÎÄ¼şÄÚµÄÄÚÈİ
-  //printf("´òÓ¡´ËÎÄ¼şÄÚÈİ.\n");
+  //æ‰“å°å‡ºæ–‡ä»¶å†…çš„å†…å®¹
+  //printf("æ‰“å°æ­¤æ–‡ä»¶å†…å®¹.\n");
   while(1)
   {
     switch(spshu){
       case 1:{
-        rc = f_read(&fil,buff_86,sizeof(buff_86),&br); // ¶ÁÈ¡ÎÄ¼şµÄÒ»¿é
-        if (rc || !br) break;     // ´íÎó»ò¶ÁÈ¡Íê±Ï
+        rc = f_read(&fil,buff_86,sizeof(buff_86),&br); // è¯»å–æ–‡ä»¶çš„ä¸€å—
+        if (rc || !br) break;     // é”™è¯¯æˆ–è¯»å–å®Œæ¯•
         LCD_siping(21,86);
         break;}
       case 2:{
-        rc = f_read(&fil,buff_114,sizeof(buff_114),&br); // ¶ÁÈ¡ÎÄ¼şµÄÒ»¿é
-        if (rc || !br) break;     // ´íÎó»ò¶ÁÈ¡Íê±Ï
+        rc = f_read(&fil,buff_114,sizeof(buff_114),&br); // è¯»å–æ–‡ä»¶çš„ä¸€å—
+        if (rc || !br) break;     // é”™è¯¯æˆ–è¯»å–å®Œæ¯•
         LCD_siping(7,114);
         break;}
     }
@@ -196,16 +202,16 @@ void badapple(uint8 spshu){
       if(gameing==0){
         rc = f_close(&fil);
         if (rc) die(rc);
-        //printf("\n½â³ı¹ÒÔØ.\n");
+        //printf("\nè§£é™¤æŒ‚è½½.\n");
         f_mount(0,NULL);
         return;
       }
   }
-  //¹Ø±ÕÎÄ¼ş
-  //printf("\n¹Ø±ÕÎÄ¼ş.\n");
+  //å…³é—­æ–‡ä»¶
+  //printf("\nå…³é—­æ–‡ä»¶.\n");
   rc=f_close(&fil);
   if (rc) die(rc);
-  //printf("\n½â³ı¹ÒÔØ.\n");
+  //printf("\nè§£é™¤æŒ‚è½½.\n");
   f_mount(0,NULL);
   if (rc) die(rc);
     while(gameing);

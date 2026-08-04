@@ -20,7 +20,13 @@
 #define	Brightness	0xCF
 #define X_WIDTH 128
 #define Y_WIDTH 64
-extern unsigned char buff_86[],buff_114[];
+/* 引用LPLD_FatFs.c中的union视频缓冲区 */
+extern union {
+  unsigned char b86[688];
+  unsigned char b114[912];
+} videobuf;
+#define buff_86  videobuf.b86
+#define buff_114 videobuf.b114
 //======================================
 
 /*const unsigned char jianmianshang[] = {
