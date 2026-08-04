@@ -114,11 +114,46 @@ void die(FRESULT rc)
   while(1);
 }
 // 用户自定义的为FatFs系统提供实时时间的函数
+// 使用编译日期作为基准时间，若RTC已初始化可改用LPLD_RTC_GetRealTime()
 DWORD get_fattime (void)
 {
-  return ((DWORD)(2018 - 1980) << 25) //2018年
-       | ((DWORD)12 << 21)               //12月
-       | ((DWORD)12 << 16)              //12日
+  /* 优先使用RTC实时时钟（若已初始化且有电池备份） */
+  if (LPLD_RTC_IsRunning()) {
+    uint32 unix_ts = LPLD_RTC_GetRealTime();
+    /* 简易Unix时间戳转FatFs时间格式 */
+    uint32 days = unix_ts / 86400;
+    uint32 rem = unix_ts % 86400;
+    uint16 year = 1970, month = 1, day = 1;
+    uint16 hour = rem / 3600;
+    uint16 min = (rem % 3600) / 60;
+    uint16 sec = rem % 60;
+    /* 粗略计算年月日 */
+    while (days >= 365) {
+      if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) {
+        if (days >= 366) { days -= 366; year++; }
+        else break;
+      } else {
+        days -= 365; year++;
+      }
+    }
+    static const uint16 mdays[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+    uint16 leap = ((year%4==0 && year%100!=0) || year%400==0) ? 1 : 0;
+    while (days >= (uint32)(mdays[month-1] + (month==2 ? leap : 0))) {
+      days -= mdays[month-1] + (month==2 ? leap : 0);
+      month++;
+    }
+    day = days + 1;
+    return ((DWORD)(year - 1980) << 25)
+         | ((DWORD)month << 21)
+         | ((DWORD)day << 16)
+         | ((DWORD)hour << 11)
+         | ((DWORD)min << 5)
+         | ((DWORD)sec >> 1);
+  }
+  /* RTC未运行时回退到编译时间 */
+  return ((DWORD)(2018 - 1980) << 25)
+       | ((DWORD)12 << 21)
+       | ((DWORD)12 << 16)
        | ((DWORD)0 << 11)
        | ((DWORD)0 << 5)
        | ((DWORD)0 >> 1);
