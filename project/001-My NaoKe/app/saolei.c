@@ -86,9 +86,10 @@ uint16 menu()
  
 //设置雷的位置
 void set_mine(unsigned char mine[rows][cols])
-{   
+{
 	uint16 n = 0;
 	uint16 m = 0;
+	if (count == 0) return;  /* 已布雷完毕，避免每帧重复ADC采样 */
 	while (count)
 	{     delay1(20);
           a= LPLD_ADC_Get(ADC1, DAD1)%10;
@@ -96,7 +97,7 @@ void set_mine(unsigned char mine[rows][cols])
                 b= LPLD_ADC_Get(ADC1, DAD1)%10;
 		n = (a*8)/10;
 		m = (b*8)/10;
-		if (mine[n][m] == '0')     
+		if (mine[n][m] == '0')
 		{
 			mine[n][m] = '1';
 			count--;
@@ -241,7 +242,7 @@ uint16 Game(unsigned char mine[rows][cols],unsigned char show[rows][cols])
 {    
   time1();
   kongzhi();
-	set_mine(mine);
+	set_mine(mine);  /* 仅在count==Count时实际布雷，后续调用因count=0直接返回 */
         if(cit==0){
 	display(show);
         }
