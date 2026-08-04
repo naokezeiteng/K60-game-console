@@ -61,7 +61,7 @@ else{
   key_up=1;
   key_down=1;
 }
-delay(100);
+delay(20);  /* 消抖延迟，从100ms减至20ms提升响应速度 */
 }
 
 void playmusic(uint16 play){
