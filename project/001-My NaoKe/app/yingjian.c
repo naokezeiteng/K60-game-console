@@ -193,10 +193,10 @@ void SPI_Init(uint8 spi){
 }
 
 void delay(int ms){
-   int ii,jj;
-   if (ms<1) ms=1;
-   for(ii=0;ii<ms;ii++)
-     for(jj=0;jj<500;jj++);}
+   /* 使用SysTick实现精确毫秒级延时，避免空循环被优化器消除 */
+   if (ms < 1) ms = 1;
+   LPLD_SYSTICK_DelayMs(ms);
+}
 
 void portb_isr(void){
   	delay(500);
