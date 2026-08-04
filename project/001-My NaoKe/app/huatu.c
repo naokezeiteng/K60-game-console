@@ -6,9 +6,10 @@ uint16 huatu1[8][8]={0};
 int16 dir1[4][2]={-1,0,1,0,0,-1,0,1};
 uint16 cu_x=4;
 uint16 cu_y=4;
-uint16 xuanzhetx,txshu=1;
+volatile uint16 xuanzhetx;
+uint16 txshu=1;
 extern uint16 key_up,key_down,key_left,key_right;
-extern uint16 gameing,xuanzhetx,mosixuanzi,gamestart;
+extern volatile uint16 gameing,xuanzhetx,mosixuanzi,gamestart;
 void huatu(void){
 LCD_CLS();
 /* 清除上次绘制的地图 */

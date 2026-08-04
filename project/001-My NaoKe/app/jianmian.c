@@ -3,9 +3,9 @@
 #include "jianmian.h"
 #include "yingjian.h"
 #include "huatu.h"
-extern uint16 mosixuanzi,gamestart,gameing;
+extern volatile uint16 mosixuanzi,gamestart,gameing;
 extern uint16 key_up,key_down,key_left,key_right;
-uint8 djm=1,jmms;
+volatile uint8 djm=1,jmms=0;
 void jianmian(void){
   uint8 jmi,jma[5]={1,0,0,0,0};
   jmms=1;

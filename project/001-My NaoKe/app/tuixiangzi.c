@@ -5,9 +5,9 @@
 extern uint16 key_up,key_down,key_left,key_right;//分别对应摇杆的上下左右
 extern uint16 flag;//返回
 extern uint16 flag1,flag2;
-extern uint16 time;
-extern uint16 timeflag;
-extern uint16 gameover,gameing,xuanzhetx;
+extern volatile uint16 time;
+extern volatile uint16 timeflag;
+extern volatile uint16 gameover,gameing,xuanzhetx;
 extern uint16 huatu1[8][8];//储存自制地图
 
 uint16 cur_x,cur_y,X,dir[4][2]={-1,0,1,0,0,-1,0,1},wherex[4]={0,0,0,0},wherey[4]={0,0,0,0};

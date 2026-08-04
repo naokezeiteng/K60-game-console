@@ -3,7 +3,7 @@
 #include "wuziqi.h"
 #include "yingjian.h"
 
-extern uint16 gameing,gamestart;
+extern volatile uint16 gameing,gamestart;
 extern uint8 board[8][8];
 extern int8 codn_x,codn_y;
 uint8 player = 1;

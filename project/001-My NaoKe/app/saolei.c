@@ -9,7 +9,7 @@
 extern uint16 result;
 extern uint16 result1;
 extern uint16 key_down,key_up,key_left,key_right;
-extern uint16 gamestart,gameing;
+extern volatile uint16 gamestart,gameing;
 uint16 gameoversl=0;
 uint16 t1=0;
 uint16 t2=0;

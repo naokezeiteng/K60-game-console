@@ -18,19 +18,20 @@ extern uint16 result,result1;//储存ADC模块的采集数据
 extern uint16 key_up,key_down,key_left,key_right;
 extern uint16 flag;//返回
 extern uint16 flag1,flag2;
-extern uint16 time;
-extern uint16 timeflag;
-extern uint16 gameover;
-extern uint16 mosixuanzi;
+extern volatile uint16 time;
+extern volatile uint16 timeflag;
+extern volatile uint16 gameover;
+extern volatile uint16 mosixuanzi;
 extern uint16 cit,x,y,ct,biaozhi;
 extern uint16 counter;
 extern unsigned char mine[rows][cols];
-extern uint16 gamestart,gameing,gameovertxz;
+extern volatile uint16 gamestart,gameing;
+extern uint16 gameovertxz;
 extern uint8 board[8][8];
 extern int8 codn_x,codn_y,rou,player;
 extern uint8 wj_wzq;
-extern uint8 djm,jmms,badapple_time;
-extern uint16 xuanzhetx;
+extern volatile uint8 djm,jmms,badapple_time;
+extern volatile uint16 xuanzhetx;
 unsigned char round[]="round:00";
 uint16 pit_n=0;
 

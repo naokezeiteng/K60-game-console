@@ -30,15 +30,15 @@ union {
 //通用标志位
 uint16 result,result1;//储存ADC模块的采集数据
 uint16 key_up,key_down,key_left,key_right;//
-uint16 mosixuanzi=1;
-uint16 gamestart=0,gameing=0;
-uint8 badapple_time=1;
+volatile uint16 mosixuanzi=1;
+volatile uint16 gamestart=0,gameing=0;
+volatile uint8 badapple_time=1;
 //傻吊汪酱标志位
 uint16 flag=1;//返回
 uint16 flag1=0,flag2=0;
-uint16 time=60;
-uint16 timeflag=0;
-uint16 gameover=0;
+volatile uint16 time=60;
+volatile uint16 timeflag=0;
+volatile uint16 gameover=0;
 uint8 wj_wzq=0;
 
 void main (void){
