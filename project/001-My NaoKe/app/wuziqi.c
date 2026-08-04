@@ -74,11 +74,12 @@ void key_scan(void)
 uint8 board_scan(int num)
 {
   uint8 count = 0;
-  
+
   for(int i = 0; i < 8;i++)   //行扫描
-  { 
+  {
+    count = 0;  /* 每行重置 */
     for(int j = 0; j < 7;j++)
-    { 
+    {
       uint8 tmp = board[i][j];
       if(tmp != board[i][j+1] || tmp ==0){count = 0;}
       else count++;
@@ -86,21 +87,23 @@ uint8 board_scan(int num)
     }
   }
   for(int i = 0; i < 8;i++)  //列扫描
-  { 
+  {
+    count = 0;  /* 每列重置 */
     for(int j = 0; j < 7;j++)
-    { 
+    {
       uint8 tmp = board[j][i];
       if(tmp != board[j+1][i] || tmp ==0)count = 0;
       else count++;
       if(count > num)return 1;
     }
   }
-  
+
   for(int i = 0; i < 4;i++)
-  { 
+  {
+    count = 0;  /* 每条对角线重置 */
     int a = i;
     for(int j = 0; j < 8 - i;j++)
-    { 
+    {
       uint8 tmp = board[a][j];
       if(tmp != board[a+1][j+1] || tmp ==0)count = 0;
       else {count++;}
@@ -108,11 +111,12 @@ uint8 board_scan(int num)
       a++;
     }
   }
-  
+
   for(int i = 0; i<4;i++)//斜方向下遍历次数3
   {
+    count = 0;
     int a = 0;
-    for(int j = 4-i;j < 8;j++)//斜线中遍历次数与i有关 j4i0 5 j3i1 6
+    for(int j = 4-i;j < 8;j++)
     {
       uint8 tmp = board[a][j];
       if(tmp != board[a+1][j+1] || tmp ==0)count = 0;
@@ -121,11 +125,12 @@ uint8 board_scan(int num)
       a++;
     }
   }
-   
+
   for(int i = 0; i<4;i++)//斜方向下遍历次数4
   {
+    count = 0;
     int a = i;
-    for(int j = 7;j > i;j--)//
+    for(int j = 7;j > i;j--)
     {
       uint8 tmp = board[a][j];
       if(tmp != board[a+1][j-1] || tmp ==0)count = 0;
@@ -134,11 +139,12 @@ uint8 board_scan(int num)
       a++;
     }
   }
-  
+
   for(int i = 0; i<3;i++)//斜方向下遍历次数4
   {
+    count = 0;
     int a = 0;
-    for(int j = 4+i;j > 0;j--)//
+    for(int j = 4+i;j > 0;j--)
     {
       uint8 tmp = board[a][j];
       if(tmp != board[a+1][j-1] || tmp ==0)count = 0;
@@ -146,6 +152,6 @@ uint8 board_scan(int num)
       if(count > 3)return 1;
       a++;
     }
-  }  
+  }
   return 0;
 }
