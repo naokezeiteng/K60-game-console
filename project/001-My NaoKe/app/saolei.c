@@ -122,42 +122,22 @@ void display(unsigned char show[rows][cols])
 }
  
 //计算雷的个数
-uint16 get_num(unsigned char mine[rows][cols], uint16 x, uint16 y) 
-{  
-	uint16 count = 0;
-	if (mine[x - 1][y - 1] == '1'&&(x-1)>=0&&(y-1)>=0)//左上方
-	{
-		count++;
+uint16 get_num(unsigned char mine[rows][cols], uint16 x, uint16 y)
+{
+	int16 count = 0;
+	int16 i, j;
+	// 先检查边界再访问数组，避免越界读取
+	for (i = -1; i <= 1; i++) {
+		for (j = -1; j <= 1; j++) {
+			if (i == 0 && j == 0) continue;
+			if ((int16)x + i >= 0 && (int16)x + i <= 7 &&
+			    (int16)y + j >= 0 && (int16)y + j <= 7) {
+				if (mine[x + i][y + j] == '1')
+					count++;
+			}
+		}
 	}
-	if (mine[x - 1][y] == '1'&&(x-1)>=0)//左边
-	{
-		count++;
-	}
-	if (mine[x - 1][y + 1] == '1'&&(x-1)>=0&&(y+1)<=7)//左下方
-	{
-		count++;
-	}
-	if (mine[x][y - 1] == '1'&&(y-1)>=0)//上方
-	{
-		count++;
-	}
-	if (mine[x][y + 1] == '1'&&(y+1)<=7)//下方
-	{
-		count++;
-	}
-	if (mine[x + 1][y - 1] == '1'&&(x+1)<=7&&(y-1)>=0)//右上方
-	{
-		count++;
-	}
-	if (mine[x + 1][y] == '1'&&(x+1)<=7)//右方
-	{
-		count++;
-	}
-	if (mine[x + 1][y + 1] == '1'&&(x+1)<=7&&(y+1)<=7)//右下方
-	{
-		count++;
-	}
-	return  count;
+	return count;
 }
 //扫雷
 uint16 Sweep(unsigned char mine[rows][cols],unsigned  char show[rows][cols])
