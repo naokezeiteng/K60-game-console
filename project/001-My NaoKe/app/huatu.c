@@ -11,6 +11,10 @@ extern uint16 key_up,key_down,key_left,key_right;
 extern uint16 gameing,xuanzhetx,mosixuanzi,gamestart;
 void huatu(void){
 LCD_CLS();
+/* 清除上次绘制的地图 */
+for(uint16 i=0;i<8;i++)
+    for(uint16 j=0;j<8;j++)
+        huatu1[i][j]=0;
 huatu1[2][2]=2;
 for (uint16 i=0;i<2;++i){    //右面板
       LCD_P14x16Ch1(72+i*14,0,i+46+1);
