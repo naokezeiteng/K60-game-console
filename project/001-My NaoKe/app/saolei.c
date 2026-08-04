@@ -89,14 +89,18 @@ void set_mine(unsigned char mine[rows][cols])
 {
 	uint16 n = 0;
 	uint16 m = 0;
-	if (count == 0) return;  /* 已布雷完毕，避免每帧重复ADC采样 */
+	/* 使用ADC噪声作为种子初始化线性同余PRNG，分布更均匀 */
+	static uint32 seed = 0;
+	if (seed == 0) {
+		seed = (LPLD_ADC_Get(ADC1, DAD1) << 16) | LPLD_ADC_Get(ADC1, DAD1);
+	}
+	if (count == 0) return;
 	while (count)
-	{     delay1(20);
-          a= LPLD_ADC_Get(ADC1, DAD1)%10;
-             delay1(20);
-                b= LPLD_ADC_Get(ADC1, DAD1)%10;
-		n = (a*8)/10;
-		m = (b*8)/10;
+	{
+		seed = seed * 1103515245 + 12345;
+		n = (seed >> 16) % 8;
+		seed = seed * 1103515245 + 12345;
+		m = (seed >> 16) % 8;
 		if (mine[n][m] == '0')
 		{
 			mine[n][m] = '1';
