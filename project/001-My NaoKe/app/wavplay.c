@@ -3,71 +3,71 @@
 #include "common.h"
 
 PIT_InitTypeDef pit2_init_struct;
-WAV_file wav1;//wavÎÄ¼ş
+WAV_file wav1;//wavæ–‡ä»¶
 uint8 wav_buf[1024];
 uint16 DApc;
 uint8 CHanalnum;
 uint8 Bitnum;
 uint8 DACdone;
+uint8 half_done;  /* 0=å‰åŠç¼“å†²å¯å¡«å……, 1=ååŠç¼“å†²å¯å¡«å…… */
 extern uint8 volume;
-extern FRESULT rc;     //½á¹û´úÂë 
-extern FATFS fatfs,*fs;      // ÎÄ¼şÏµÍ³¶ÔÏó 
-extern FIL fil;      // ÎÄ¼ş¶ÔÏó 
+extern FRESULT rc;     //ç»“æœä»£ç  
+extern FATFS fatfs,*fs;      // æ–‡ä»¶ç³»ç»Ÿå¯¹è±¡ 
+extern FIL fil;      // æ–‡ä»¶å¯¹è±¡ 
 extern UINT bw, br;
 
 void pit_time2(void){
 	uint16 temp;
-      if(Bitnum==8)//8Î»¾«¶È
+      if(Bitnum==8)//8ä½ç²¾åº¦
       {
-        //DAC->DHR12R1=wav_buf[DApc]*10/volume;//Í¨µÀ1µÄ12Î»ÓÒ¶ÔÆëÊı¾İ
         LPLD_DAC_SetBufferDataN(DAC0,wav_buf[DApc]*10/volume,1);
         DApc++;
       }
-      else if(Bitnum==16)//16Î»¾«¶È(ÏÈµÍÎ»ºó¸ßÎ»)
+      else if(Bitnum==16)//16ä½ç²¾åº¦(å…ˆä½ä½åé«˜ä½)
       {
         temp=(((uint8)(wav_buf[DApc+1]-0x80)<<4)|(wav_buf[DApc]>>4))*10/volume;
         LPLD_DAC_SetBufferDataN(DAC0,temp,1);
-        DApc+=2;        
-      } 
-    if(DApc==512)DACdone=1;
-    if(DApc==1024){DApc=0;DACdone=1;}                                         
+        DApc+=2;
+      }
+    if(DApc==512){DACdone=1;half_done=0;}   /* å‰åŠæ¶ˆè€—å®Œï¼Œå¯å¡«å……å‰åŠ */
+    if(DApc==1024){DApc=0;DACdone=1;half_done=1;}  /* ååŠæ¶ˆè€—å®Œï¼Œå¯å¡«å……ååŠ */
 }
 
-uint8 WAV_Init(uint8* pbuf)//³õÊ¼»¯²¢ÏÔÊ¾ÎÄ¼şĞÅÏ¢
+uint8 WAV_Init(uint8* pbuf)//åˆå§‹åŒ–å¹¶æ˜¾ç¤ºæ–‡ä»¶ä¿¡æ¯
 {
-	if(Check_Ifo(pbuf,"RIFF"))return 1;//RIFF±êÖ¾´íÎó
-	wav1.wavlen=Get_num(pbuf+4,4);//ÎÄ¼ş³¤¶È£¬Êı¾İÆ«ÒÆ4byte
-	if(Check_Ifo(pbuf+8,"WAVE"))return 2;//WAVE±êÖ¾´íÎó
-	if(Check_Ifo(pbuf+12,"fmt "))return 3;//fmt±êÖ¾´íÎó
-	wav1.formart=Get_num(pbuf+20,2);//¸ñÊ½Àà±ğ
-	wav1.CHnum=Get_num(pbuf+22,2);//Í¨µÀÊı
+	if(Check_Ifo(pbuf,"RIFF"))return 1;//RIFFæ ‡å¿—é”™è¯¯
+	wav1.wavlen=Get_num(pbuf+4,4);//æ–‡ä»¶é•¿åº¦ï¼Œæ•°æ®åç§»4byte
+	if(Check_Ifo(pbuf+8,"WAVE"))return 2;//WAVEæ ‡å¿—é”™è¯¯
+	if(Check_Ifo(pbuf+12,"fmt "))return 3;//fmtæ ‡å¿—é”™è¯¯
+	wav1.formart=Get_num(pbuf+20,2);//æ ¼å¼ç±»åˆ«
+	wav1.CHnum=Get_num(pbuf+22,2);//é€šé“æ•°
 	CHanalnum=wav1.CHnum;
-	wav1.SampleRate=Get_num(pbuf+24,4);//²ÉÑùÂÊ
-	wav1.speed=Get_num(pbuf+28,4);//ÒôÆµ´«ËÍËÙÂÊ
-	wav1.ajust=Get_num(pbuf+32,2);//Êı¾İ¿éµ÷ËÙÊı
-	wav1.SampleBits=Get_num(pbuf+34,2);//Ñù±¾Êı¾İÎ»Êı
+	wav1.SampleRate=Get_num(pbuf+24,4);//é‡‡æ ·ç‡
+	wav1.speed=Get_num(pbuf+28,4);//éŸ³é¢‘ä¼ é€é€Ÿç‡
+	wav1.ajust=Get_num(pbuf+32,2);//æ•°æ®å—è°ƒé€Ÿæ•°
+	wav1.SampleBits=Get_num(pbuf+34,2);//æ ·æœ¬æ•°æ®ä½æ•°
 	Bitnum=wav1.SampleBits;
-	if(Check_Ifo(pbuf+36,"data"))return 4;//data±êÖ¾´íÎó
-	wav1.DATAlen=Get_num(pbuf+40,4);//Êı¾İ³¤¶È	
+	if(Check_Ifo(pbuf+36,"data"))return 4;//dataæ ‡å¿—é”™è¯¯
+	wav1.DATAlen=Get_num(pbuf+40,4);//æ•°æ®é•¿åº¦	
 	///////////////////////////////////////////////
 	/*if(wav1.wavlen<0x100000)
 	{
-		LCD_ShowNum(170,30,(wav1.wavlen)>>10,3,16);//ÎÄ¼ş³¤¶È
+		LCD_ShowNum(170,30,(wav1.wavlen)>>10,3,16);//æ–‡ä»¶é•¿åº¦
 		LCD_ShowString(200,30,"Kb");
 	}
 	else
 	{
-		LCD_ShowNum(170,30,(wav1.wavlen)>>20,3,16);//ÎÄ¼ş³¤¶È
+		LCD_ShowNum(170,30,(wav1.wavlen)>>20,3,16);//æ–‡ä»¶é•¿åº¦
 		LCD_ShowString(200,30,"Mb");
 	}
 	if(wav1.formart==1)LCD_ShowString(170,50,"WAV PCM");
 	if(wav1.CHnum==1)LCD_ShowString(170,70,"single");
 	else LCD_ShowString(170,70,"stereo");
-	LCD_ShowNum(170,90,(wav1.SampleRate)/1000,3,16);//²ÉÑùÂÊ
+	LCD_ShowNum(170,90,(wav1.SampleRate)/1000,3,16);//é‡‡æ ·ç‡
 	LCD_ShowString(200,90,"KHz");
-	LCD_ShowNum(170,110,(wav1.speed)/1000,3,16);//´«ËÍËÙ¶È
+	LCD_ShowNum(170,110,(wav1.speed)/1000,3,16);//ä¼ é€é€Ÿåº¦
 	LCD_ShowString(200,110,"bps");
-	LCD_ShowNum(177,130,wav1.SampleBits,2,16);//Ñù±¾Êı¾İÎ»Êı
+	LCD_ShowNum(177,130,wav1.SampleBits,2,16);//æ ·æœ¬æ•°æ®ä½æ•°
 	LCD_ShowString(200,130,"bit");*/
 	return 0;
 }
@@ -76,8 +76,8 @@ uint8 Playwav(uint8 qumu)
 {
 	uint16 i,times;
 	/*F_Open(CurFile);
-	F_Read(CurFile,wav_buf);//ÏÈ¶Á512×Ö½Úµ½
-	F_Read(CurFile,wav_buf+512);//ÔÙ¶Á512×Ö½Ú*/
+	F_Read(CurFile,wav_buf);//å…ˆè¯»512å­—èŠ‚åˆ°
+	F_Read(CurFile,wav_buf+512);//å†è¯»512å­—èŠ‚*/
 
 	f_open(&fil, "0:/music/test.wav", FA_READ);
 	f_read(&fil,wav_buf,512,&br);
@@ -85,34 +85,31 @@ uint8 Playwav(uint8 qumu)
 
 	while(WAV_Init(wav_buf));
 	//LCD_ShowString(35,70,"format illegal!");
-	//¸ù¾İ²ÉÑùÂÊ£¨wav1.SampleRate£©ÉèÖÃ¶¨Ê±Æ÷£¬ÔÚÖĞ¶ÏÖĞ½øĞĞDA×ª»»
+	//æ ¹æ®é‡‡æ ·ç‡ï¼ˆwav1.SampleRateï¼‰è®¾ç½®å®šæ—¶å™¨ï¼Œåœ¨ä¸­æ–­ä¸­è¿›è¡ŒDAè½¬æ¢
 	DACdone=0;
-	DApc=44;//DA×ª»»µØÖ·(Ìø¹ıÍ·ĞÅÏ¢)
-	//LCD_DrawRectangle(18,258,222,272);//½ø¶È¿ò
-	//LCD_Fill(20,260,220,270,WHITE);//½ø¶ÈÌõ
+	DApc=44;//DAè½¬æ¢åœ°å€(è·³è¿‡å¤´ä¿¡æ¯)
+	half_done=1;  /* åˆå§‹ååŠç¼“å†²å·²å¡«å……ï¼Œç­‰å¾…å‰åŠæ¶ˆè€—å®Œ */
 	pit2_init_struct.PIT_Pitx = PIT2;
-  	pit2_init_struct.PIT_PeriodUs =1000000/wav1.SampleRate; //¶¨Ê±ÖÜÆÚ
-  	pit2_init_struct.PIT_Isr = pit_time2;  //ÉèÖÃÖĞ¶Ïº¯Êı
-  	LPLD_PIT_Init(pit2_init_struct);//³õÊ¼»¯PIT2 
+  	pit2_init_struct.PIT_PeriodUs =1000000/wav1.SampleRate; //å®šæ—¶å‘¨æœŸ
+  	pit2_init_struct.PIT_Isr = pit_time2;  //è®¾ç½®ä¸­æ–­å‡½æ•°
+  	LPLD_PIT_Init(pit2_init_struct);//åˆå§‹åŒ–PIT2
   	LPLD_PIT_EnableIrq(pit2_init_struct);
-	//Timerx_Init(1000000/wav1.SampleRate,72);//1MHzµÄ¼ÆÊıÆµÂÊ,²úÉúºÍ²ÉÑùÂÊÒ»ÑùµÄÖĞ¶ÏÆµÂÊ
 	times=(wav1.DATAlen>>10)-1;
-	for(i=0;i<times;i++)//Ñ­»·Ò»´Î×ª»»1KBÊı¾İ
-	{	
-		while(!DACdone);//µÈ´ıÇ°Ãæ512×Ö½Ú×ª»»Íê³É
+	for(i=0;i<times;i++)//å¾ªç¯ä¸€æ¬¡è½¬æ¢1KBæ•°æ®
+	{
+		/* ç­‰å¾…å‰åŠç¼“å†²æ¶ˆè€—å®Œï¼Œå†å¡«å……å‰åŠ */
+		while(!DACdone || half_done!=0);
 		DACdone=0;
-		//F_Read(CurFile,wav_buf);//¶Á512×Ö½Ú
 		f_read(&fil,wav_buf,512,&br);
-		//LCD_Fill(20,260,20+(200*i/times),270,BLUE);//½ø¶ÈÌõ
-		while(!DACdone);//µÈ´ıÇ°Ãæ512×Ö½Ú×ª»»Íê³É
+		/* ç­‰å¾…ååŠç¼“å†²æ¶ˆè€—å®Œï¼Œå†å¡«å……ååŠ */
+		while(!DACdone || half_done!=1);
 		DACdone=0;
-		//F_Read(CurFile,wav_buf+512);//¶Á512×Ö½Ú
-		f_read(&fil,wav_buf+512,512,&br);	
+		f_read(&fil,wav_buf+512,512,&br);
 	}
 	LPLD_PIT_Deinit(pit2_init_struct);
 	rc = f_close(&fil);
     if (rc) die(rc);
-    //printf("\n½â³ı¹ÒÔØ.\n");
+    //printf("\nè§£é™¤æŒ‚è½½.\n");
     f_mount(0,NULL);
 	return 0;
 }
@@ -120,8 +117,8 @@ uint8 Playwav(uint8 qumu)
 uint8 Check_Ifo(uint8* pbuf1,uint8* pbuf2)
 {
 	uint8 i;
-	for(i=0;i<4;i++)if(pbuf1[i]!=pbuf2[i])return 1;//²»Í¬
-	return 0;//ÏàÍ¬
+	for(i=0;i<4;i++)if(pbuf1[i]!=pbuf2[i])return 1;//ä¸åŒ
+	return 0;//ç›¸åŒ
 }
 
 uint32 Get_num(uint8* pbuf,uint8 len)
