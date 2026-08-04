@@ -3,7 +3,7 @@
 #include "yingjian.h"
 #include "huatu.h"
 uint16 huatu1[8][8]={0};
-uint16 dir1[4][2]={-1,0,1,0,0,-1,0,1};
+int16 dir1[4][2]={-1,0,1,0,0,-1,0,1};
 uint16 cu_x=4;
 uint16 cu_y=4;
 uint16 xuanzhetx,txshu=1;
@@ -70,8 +70,9 @@ for(uint16 i=0;i<8;i++){
 }
 
 void move(uint16 x,uint16 y,uint16 id){
-    uint16 xx1,yy1,key1;
-    xx1=x+dir1[id][0]; yy1=y+dir1[id][1];
+    int16 xx1,yy1;
+    uint16 key1;
+    xx1=(int16)x+dir1[id][0]; yy1=(int16)y+dir1[id][1];
     if(xx1<0||xx1>=8||yy1<0||yy1>=8)
         key1=0;
     else
