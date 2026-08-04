@@ -426,10 +426,12 @@ void panduan(uint16 a, uint16 b) {
                 if (i == 0 && j == 0) continue;
 
                else if((a+i)>=0&&(a+i)<=7&&(b+j)>=0&&(b+j)<=7){
+                     /* 检查目标格是否已展开，避免无限递归 */
+                     if(show[a+i][b+j] != '*') continue;
                      uint16 ret1 = get_num(mine, a+i, b+j);
                      if(ret1==0){
             panduan(a + i, b + j);
-                }  
+                }
                }
             }
         }
