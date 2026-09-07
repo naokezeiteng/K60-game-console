@@ -410,6 +410,24 @@
         <file>
           <name>$PROJ_DIR$\..\app\yingjian.h</name>
         </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\input.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\input.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\app_state.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\app_state.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\config\board_config.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\config\feature_config.h</name>
+        </file>
       </group>
       <group>
         <name>HW</name>

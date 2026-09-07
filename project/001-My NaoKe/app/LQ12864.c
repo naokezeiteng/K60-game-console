@@ -2,15 +2,12 @@
 //#include "intrins.h"
 #include "LQ12864.h"
 #include "common.h"
-#define LCD_PORT PTD
-#define LCD_SCL 0
-#define LCD_SDA 1
-#define LCD_RST 2
-#define LCD_DC  3
-//sbit LCD_SCL=P1^0;
-//sbit LCD_SDA=P1^1;
-//sbit LCD_RST=P1^2;
-//sbit LCD_DC =P1^3;
+#include "board_config.h"
+
+#define LCD_SCL_O  PTxn_O(BOARD_LCD_SCL_PORT, BOARD_LCD_SCL_PIN)
+#define LCD_SDA_O  PTxn_O(BOARD_LCD_SDA_PORT, BOARD_LCD_SDA_PIN)
+#define LCD_RST_O  PTxn_O(BOARD_LCD_RST_PORT, BOARD_LCD_RST_PIN)
+#define LCD_DC_O   PTxn_O(BOARD_LCD_DC_PORT,  BOARD_LCD_DC_PIN)
 
 #define XLevelL		0x00
 #define XLevelH		0x10
@@ -733,62 +730,28 @@ const unsigned char F8X16[]=
 };
 
 
+static void LCD_WrByte(unsigned char val)
+{
+    unsigned char i = 8;
+    LCD_SCL_O = 0;
+    while (i--) {
+        LCD_SDA_O = (val & 0x80) ? 1 : 0;
+        LCD_SCL_O = 1;
+        LCD_SCL_O = 0;
+        val <<= 1;
+    }
+}
+
 void LCD_WrDat(unsigned char dat)
 {
-	unsigned char i=8;
-	// //LCD_CS=0;;
-	//LCD_DC=1;;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_DC,1);;
-  //LCD_SCL=0;;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,0);;
-  // //;;
-  while(i--)
-  {
-    if(dat&0x80){
-      //LCD_SDA=1;
-      LPLD_GPIO_Output_b(LCD_PORT,LCD_SDA,1);
-    }
-    else{
-      //LCD_SDA=0;
-      LPLD_GPIO_Output_b(LCD_PORT,LCD_SDA,0);
-    }
-    //LCD_SCL=1;
-    LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,1);
-    ;;;
-		//;;
-    //LCD_SCL=0;;
-    LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,0);;
-    dat<<=1;
-  }
-	//LCD_CS=1;
+    LCD_DC_O = 1;
+    LCD_WrByte(dat);
 }
+
 void LCD_WrCmd(unsigned char cmd)
 {
-	unsigned char i=8;
-
-	// //LCD_CS=0;;
-	//LCD_DC=0;;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_DC,0);;
-  //LCD_SCL=0;;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,0);;
-  // //;;
-  while(i--)
-  {
-    if(cmd&0x80){
-      //LCD_SDA=1;
-      LPLD_GPIO_Output_b(LCD_PORT,LCD_SDA,1);
-    }
-    else{
-     // LCD_SDA=0;;
-      LPLD_GPIO_Output_b(LCD_PORT,LCD_SDA,0);;
-    }
-    //LCD_SCL=1;;
-    LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,1);;
-    //LCD_SCL=0;;
-    LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,0);;
-    cmd<<=1;;
-  }
-	//LCD_CS=1;
+    LCD_DC_O = 0;
+    LCD_WrByte(cmd);
 }
 void LCD_Set_Pos(unsigned char x, unsigned char y)
 {
@@ -849,14 +812,10 @@ void LCD_DLY_ms(unsigned int ms)
 }
 void LCD_Init(void)
 {
-	//LCD_SCL=1;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_SCL,1);
-	// //LCD_CS=1;	//脭陇脰脝SLK潞脥SS脦陋赂脽碌莽脝陆
-	//LCD_RST=0;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_RST,0);
-	LCD_DLY_ms(50);
-	//LCD_RST=1;
-  LPLD_GPIO_Output_b(LCD_PORT,LCD_RST,1);
+  LCD_SCL_O = 1;
+  LCD_RST_O = 0;
+  LCD_DLY_ms(50);
+  LCD_RST_O = 1;
 
 	//麓脫脡脧碌莽碌陆脧脗脙忙驴陋脢录鲁玫脢录禄炉脪陋脫脨脳茫鹿禄碌脛脢卤录盲拢卢录麓碌脠麓媒RC赂麓脦禄脥锚卤脧
 
@@ -990,19 +949,15 @@ void LCD_P16x8Ch(unsigned char x,unsigned char y,unsigned char N)
 
 void LCD_siping(unsigned char x,unsigned char N)
 {
-  unsigned char wm=0,ii = 0;
-  unsigned char wmm=0;
-  unsigned int adder=0;
-  adder=0;
-  for(wmm = 0;wmm <8;wmm++){
-    LCD_Set_Pos(x,wmm);
-    for(wm = 0;wm <N;wm++)
-    {
-        switch(N){
-            case 86:LCD_WrDat(buff_86[adder]);break;
-            case 114:LCD_WrDat(buff_114[adder]);break;
-        }
-      adder += 1;
+  unsigned char wm, wmm;
+  unsigned int adder = 0;
+  const unsigned char *src = (N == 86) ? buff_86 : buff_114;
+  LCD_DC_O = 1;
+  for (wmm = 0; wmm < BOARD_LCD_PAGES; wmm++) {
+    LCD_Set_Pos(x, wmm);
+    LCD_DC_O = 1;
+    for (wm = 0; wm < N; wm++) {
+      LCD_WrByte(src[adder++]);
     }
   }
 }
@@ -1076,50 +1031,33 @@ void MY_LCD(unsigned char y,unsigned int bmp_dat)
 }
 void chess_board()
 {
-  int x = 0;
-  for(int j = 0;j < 8;j++)
-  {
-    LCD_Set_Pos(x,j);
-    for(int i=0;i<128;i++)
-    {
-      LCD_WrDat(CB[i+128*j]);
-      LCD_Set_Pos(++x,j);
+  int j, i;
+  for (j = 0; j < 8; j++) {
+    LCD_Set_Pos(0, (unsigned char)j);
+    LCD_DC_O = 1;
+    for (i = 0; i < 128; i++) {
+      LCD_WrByte(CB[i + 128 * j]);
     }
-    x = 0;
   }
 }
 void chess_board1()
 {
-  int x = 0;
-  for(int row = 0;row < 8;row++)
-  {
-    x= 0;
-    LCD_Set_Pos(x,row);
-    for(int column = 0; column < 8;column++)
-    {
-      if(board[row][column] == 0)
-      {
-        for(int i=0;i<8;i++)
-        {
-          LCD_WrDat(CB1[i]);
-        }
+  int row, column, i;
+  const unsigned char *tile;
+  for (row = 0; row < 8; row++) {
+    LCD_Set_Pos(0, (unsigned char)row);
+    LCD_DC_O = 1;
+    for (column = 0; column < 8; column++) {
+      if (board[row][column] == 1) {
+        tile = C1;
+      } else if (board[row][column] == 2) {
+        tile = C2;
+      } else {
+        tile = CB1;
       }
-      else if(board[row][column] == 1)
-      {
-        for(int i=0;i<8;i++)
-        {
-          LCD_WrDat(C1[i]);
-        }
+      for (i = 0; i < 8; i++) {
+        LCD_WrByte(tile[i]);
       }
-      else if(board[row][column] == 2)
-      {
-        for(int i=0;i<8;i++)
-        {
-          LCD_WrDat(C2[i]);
-        }
-      }
-      x += 8;
-      LCD_Set_Pos(x,row);
     }
   }
 }

@@ -302,6 +302,8 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\app</state>
+          <state>$PROJ_DIR$\..\..\..\config</state>
+          <state>$PROJ_DIR$\..\..\..\framework\core</state>
           <state>$PROJ_DIR$\..\..\..\lib\CPU</state>
           <state>$PROJ_DIR$\..\..\..\lib\common</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
@@ -1256,6 +1258,8 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\app</state>
+          <state>$PROJ_DIR$\..\..\..\config</state>
+          <state>$PROJ_DIR$\..\..\..\framework\core</state>
           <state>$PROJ_DIR$\..\..\..\lib\CPU</state>
           <state>$PROJ_DIR$\..\..\..\lib\common</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
@@ -2210,6 +2214,8 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$\..\app</state>
+          <state>$PROJ_DIR$\..\..\..\config</state>
+          <state>$PROJ_DIR$\..\..\..\framework\core</state>
           <state>$PROJ_DIR$\..\..\..\lib\CPU</state>
           <state>$PROJ_DIR$\..\..\..\lib\common</state>
           <state>$PROJ_DIR$\..\..\..\lib\LPLD</state>
@@ -3019,6 +3025,24 @@
         </file>
         <file>
           <name>$PROJ_DIR$\..\app\yingjian.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\input.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\input.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\app_state.c</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\app\app_state.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\config\board_config.h</name>
+        </file>
+        <file>
+          <name>$PROJ_DIR$\..\..\..\config\feature_config.h</name>
         </file>
       </group>
       <group>

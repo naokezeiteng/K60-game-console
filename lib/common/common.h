@@ -125,6 +125,8 @@ typedef unsigned char   boolean;      /* 8-bit*/
  * 包含拉普兰德K60固件库头文件
  */
 #include "LPLD_Drivers.h"
+#include "board_config.h"
+#include "feature_config.h"
 
 /* 
  * 包含实时系统头文件

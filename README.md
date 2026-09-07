@@ -49,10 +49,19 @@
 └── project/001-My NaoKe/  应用工程
     └── app/               主程序与各游戏实现
         ├── LPLD_FatFs.c   main() 入口、菜单调度、视频播放
+        ├── input.*        摇杆边沿/连发、按键 ISR 置位、PIT 节拍
+        ├── app_state.*    会话状态（替代散落的 extern 全局量）
         ├── LQ12864.*      OLED 驱动与绘图函数
-        ├── yingjian.*     GPIO/ADC/PIT/PWM 等硬件初始化
+        ├── yingjian.*     GPIO/ADC/PIT/PWM 初始化；ISR 只置标志
         └── *.c / *.h      各游戏与功能模块
 ```
+
+## 输入与中断
+
+- 按键 ISR 只置位，禁止 `delay` / LCD / 蜂鸣。
+- 主循环调用 `input_poll()`，用 `input_edge()` 消费事件（带连发）。
+- PIT1 每 10ms 累加时间；PIT0 按 20FPS 给出视频帧节拍。
+- OLED 用 GPIO 位带写 SCL/SDA，避免每 bit 一次库函数 RMW。
 
 ## 构建
 
